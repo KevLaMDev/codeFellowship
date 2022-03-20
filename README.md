@@ -4,7 +4,7 @@
 - Kevin LaMarca
 
 ## Description
-- This app allows CodeFellows students to connects
+- This app allows CodeFellows students to connect
 
 ## Set up instructions
 - Clone down repo
@@ -17,3 +17,4 @@
 - "/login" login page (accessible to non-logged in users)
 - "/signup" sign up page (accessible to non-logged in users)
 - "/home" profile home page (accessible to only logged in users)
+- "/users/{id}" visit a page with the user's info
