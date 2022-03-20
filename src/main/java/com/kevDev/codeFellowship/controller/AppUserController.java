@@ -1,28 +1,35 @@
 package com.kevDev.codeFellowship.controller;
 
 import com.kevDev.codeFellowship.model.AppUser;
+import com.kevDev.codeFellowship.model.Post;
 import com.kevDev.codeFellowship.repositories.AppUserRepository;
+import com.kevDev.codeFellowship.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Controller
 public class AppUserController {
     @Autowired
     AppUserRepository appUserRepository;
+    @Autowired
+    PostRepository postRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
     @Autowired
@@ -38,12 +45,17 @@ public class AppUserController {
         return ("landing-page.html");
     }
 
-    @GetMapping("/home")
+    @GetMapping("/myprofile")
     public String getHomePage(Principal p, Model m) {
         String username = p.getName();
         AppUser user = (AppUser) appUserRepository.findByUsername(username);
+        List<Post> postList = user.getPostList();
         m.addAttribute("username", user.getUsername());
-        m.addAttribute("user", user);
+        m.addAttribute("image", user.getImageUrl());
+        m.addAttribute("postList", postList);
+        m.addAttribute("firstName", user.getFirstName());
+        m.addAttribute("lastName", user.getLastName());
+        m.addAttribute("bio", user.getBio());
         return ("home-page.html");
     }
 
@@ -68,17 +80,33 @@ public class AppUserController {
         newAppUser.setLastName(lastName);
         newAppUser.setBio(bio);
         newAppUser.setDateOfBirth(dateOfBirth);
+        newAppUser.setImageUrl("https://www.kindpng.com/picc/m/269-2697881_computer-icons-user-clip-art-transparent-png-icon.png");
         // hash input password and set hashed password to password property
         String hashedPassword = passwordEncoder.encode(password);
         newAppUser.setPassword(hashedPassword);
         // save new AppUser class object instance in DB
         appUserRepository.save(newAppUser);
-
         // logins in users after creation of profile
         authWithHttpServletRequest(username, password);
-        return new RedirectView("/home");
+        return new RedirectView("/myprofile");
     }
-    
+
+    @GetMapping("/users/{id}")
+    public String getUser(@PathVariable long id, Principal p, Model m) {
+        AppUser viewAppUser;
+
+        try {
+            viewAppUser = appUserRepository.getById(id);
+        } catch (EntityNotFoundException entityNotFoundException) {
+            entityNotFoundException.printStackTrace();
+            return ("/myprofile");
+        }
+        String username = viewAppUser.getUsername();
+        m.addAttribute("viewAppUser", viewAppUser);
+        m.addAttribute("username", username);
+        return ("visit-profile.html");
+    }
+
 
     @PostMapping
     public RedirectView logout(HttpServletRequest request) {

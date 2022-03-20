@@ -2,13 +2,10 @@ package com.kevDev.codeFellowship.model;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 
 @Entity
@@ -22,6 +19,10 @@ public class AppUser implements UserDetails {
     String lastName;
     LocalDate dateOfBirth;
     String bio;
+    String imageUrl;
+
+    @OneToMany(mappedBy = "postsOfUser", cascade = CascadeType.ALL)
+    List<Post> postList;
 
     public AppUser() {
         // default constructor
@@ -107,5 +108,16 @@ public class AppUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public List<Post> getPostList() {
+        return postList;
     }
 }
