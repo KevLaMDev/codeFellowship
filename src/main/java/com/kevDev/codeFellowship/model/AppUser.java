@@ -6,13 +6,14 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
 public class AppUser implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    public Long id;
     String username;
     String password;
     String firstName;
@@ -24,6 +25,14 @@ public class AppUser implements UserDetails {
     @OneToMany(mappedBy = "postsOfUser", cascade = CascadeType.ALL)
     List<Post> postList;
 
+    @ManyToMany(mappedBy = "usersFollowingMe")
+    Set<AppUser> usersWhomIFollow;
+
+    @ManyToMany
+    @JoinTable(name = "whomIFollow_to_whoFollowsMe", joinColumns = {@JoinColumn(name="whomIfollow")}, inverseJoinColumns = {@JoinColumn(name="whoFollowMe")})
+    Set<AppUser> usersFollowingMe;
+
+
     public AppUser() {
         // default constructor
     }
@@ -34,6 +43,34 @@ public class AppUser implements UserDetails {
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.bio = bio;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Set<AppUser> getUsersWhomIFollow() {
+        return usersWhomIFollow;
+    }
+
+    public void addUsertoUsersFollowingMe(AppUser user) {
+        usersFollowingMe.add(user);
+    }
+
+    public Set<AppUser> getUsersFollowingMe() {
+        return usersFollowingMe;
+    }
+
+    public void setUsersFollowingMe(Set<AppUser> usersFollowingMe) {
+        this.usersFollowingMe = usersFollowingMe;
+    }
+
+    public void setUsersWhoIFollow(Set<AppUser> usersWhomIFollow) {
+        this.usersWhomIFollow = usersWhomIFollow;
+    }
+
+    public void addUserToUsersWhomIFollow(AppUser userToFollow) {
+        usersWhomIFollow.add(userToFollow);
     }
 
     public String getUsername() {
@@ -119,5 +156,9 @@ public class AppUser implements UserDetails {
 
     public List<Post> getPostList() {
         return postList;
+    }
+
+    public Post getMostRecentPost() {
+        return postList.get(1);
     }
 }

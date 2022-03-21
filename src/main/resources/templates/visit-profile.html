@@ -5,6 +5,13 @@
     <title>Title</title>
 </head>
 <body>
-<h1 th:text="'Welcome to ' + ${username} + '\'s page'" ><h1>
+<h1 th:text="'Welcome to ' + ${username} + '\'s page'" ></h1>
+<h1 th:text="'User Bio: ' + ${viewAppUser.bio}"></h1>
+<img th:src="${viewAppUser.imageUrl}">
+<form action="/followUser" method="post">
+    <input type="hidden" th:value="${viewAppUser.getId}" name="userId">
+    <input type="submit" th:value="'Follow ' + ${viewAppUser.getUsername}">
+</form>
+<div th:insert="fragments/nav-frag :: footer"></div>
 </body>
 </html>
