@@ -6,12 +6,17 @@ import com.kevDev.codeFellowship.repositories.AppUserRepository;
 import com.kevDev.codeFellowship.repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.security.Principal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Controller
 public class PostController {
@@ -33,4 +38,18 @@ public class PostController {
         postRepository.save(postToAdd);
         return new RedirectView("/myprofile");
     }
+
+    @GetMapping("/feed")
+    public String getFeed(Principal p, Model m) {
+        AppUser currentUser = (AppUser) appUserRepository.findByUsername(p.getName());
+        Set<AppUser> followingList = currentUser.getUsersWhomIFollow();
+        ArrayList<Post> listOfPosts = new ArrayList<>();
+        for (AppUser userIfollow : followingList) {
+            listOfPosts.addAll(userIfollow.getPostList());
+        }
+        m.addAttribute("listOfPosts", listOfPosts);
+        m.addAttribute("username", currentUser.getUsername());
+        return ("feed-page.html");
+    }
+
 }

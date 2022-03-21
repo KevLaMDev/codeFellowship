@@ -41,4 +41,12 @@ public class Post {
     public void setPostsOfUser(AppUser postsOfUser) {
         this.postsOfUser = postsOfUser;
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "body='" + body + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }

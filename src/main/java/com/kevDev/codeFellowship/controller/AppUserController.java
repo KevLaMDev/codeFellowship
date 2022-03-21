@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -23,6 +24,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class AppUserController {
@@ -107,7 +109,6 @@ public class AppUserController {
         return ("visit-profile.html");
     }
 
-
     @PostMapping
     public RedirectView logout(HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -115,6 +116,26 @@ public class AppUserController {
         return new RedirectView("/login");
     }
 
+    @GetMapping("/allusers")
+    public String getAllUsers(Model m, Principal p) {
+        AppUser currentUser = (AppUser) appUserRepository.findByUsername(p.getName());
+        List<AppUser> appUserList = appUserRepository.findAll();
+        List<AppUser> filteredAppUserList = appUserList.stream().filter(appUser -> appUser.getId() != currentUser.getId()).collect(Collectors.toList());
+        m.addAttribute(filteredAppUserList);
+        m.addAttribute("username", currentUser.getUsername());
+        return ("allusers-page.html");
+    }
+
+    @PostMapping("/followUser")
+    public RedirectView followUser(Long userId, Principal p) {
+        AppUser userToFollow = appUserRepository.getById(userId);
+        AppUser currentUser = (AppUser) appUserRepository.findByUsername(p.getName());
+        userToFollow.addUsertoUsersFollowingMe(currentUser);
+        currentUser.addUserToUsersWhomIFollow(userToFollow);
+        appUserRepository.save(userToFollow);
+        appUserRepository.save(currentUser);
+        return new RedirectView("/allusers");
+    }
 
 
     public void authWithHttpServletRequest (String username, String password)

@@ -18,3 +18,5 @@
 - "/signup" sign up page (accessible to non-logged in users)
 - "/home" profile home page (accessible to only logged in users)
 - "/users/{id}" visit a page with the user's info
+- "/feed" renders a page with posts from other users that the user follows
+- "/allusers" renders a page with all users saved in the database
